@@ -1,18 +1,3 @@
-/**
-=========================================================
-* Soft UI Dashboard React - v4.0.1
-=========================================================
-
-* Product Page: https://www.creative-tim.com/product/soft-ui-dashboard-react
-* Copyright 2023 Creative Tim (https://www.creative-tim.com)
-
-Coded by www.creative-tim.com
-
- =========================================================
-
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-*/
-
 import { useMemo } from "react";
 
 // prop-types is a library for typechecking of props
@@ -37,10 +22,11 @@ import colors from "assets/theme/base/colors";
 import typography from "assets/theme/base/typography";
 import borders from "assets/theme/base/borders";
 
-function Table({ columns, rows }) {
+function Table({ columns, rows, data }) {
   const { light } = colors;
   const { size, fontWeightBold } = typography;
   const { borderWidth } = borders;
+  // console.log(data);
 
   const renderColumns = columns.map(({ name, align, width }, key) => {
     let pl;
@@ -78,13 +64,15 @@ function Table({ columns, rows }) {
     );
   });
 
-  const renderRows = rows.map((row, key) => {
-    const rowKey = `row-${key}`;
+  const renderRows = data.map((row) => {
+    const rowKey = `row-${row.id}`; // Usando `row.id` como clave única
 
     const tableRow = columns.map(({ name, align }) => {
       let template;
+console.log(row.fullName  );
 
-      if (Array.isArray(row[name])) {
+      if (name === "Profile Picture") {
+        // Verificamos si la columna es la de la imagen de perfil
         template = (
           <SoftBox
             key={uuidv4()}
@@ -94,10 +82,15 @@ function Table({ columns, rows }) {
           >
             <SoftBox display="flex" alignItems="center" py={0.5} px={1}>
               <SoftBox mr={2}>
-                <SoftAvatar src={row[name][0]} name={row[name][1]} variant="rounded" size="sm" />
+                <SoftAvatar
+                  src={row.profilePicture}
+                  name={row.fullName}
+                  variant="rounded"
+                  size="sm"
+                />
               </SoftBox>
               <SoftTypography variant="button" fontWeight="medium" sx={{ width: "max-content" }}>
-                {row[name][1]}
+                {row.fullName}
               </SoftTypography>
             </SoftBox>
           </SoftBox>
@@ -117,7 +110,8 @@ function Table({ columns, rows }) {
               color="secondary"
               sx={{ display: "inline-block", width: "max-content" }}
             >
-              {row[name]}
+              {row[name.toLowerCase().replace(" ", "")]}{" "}
+              {/* Aseguramos que los nombres coincidan */}
             </SoftTypography>
           </SoftBox>
         );
@@ -128,6 +122,8 @@ function Table({ columns, rows }) {
 
     return <TableRow key={rowKey}>{tableRow}</TableRow>;
   });
+
+  console.log(renderRows, "nuevo");
 
   return useMemo(
     () => (

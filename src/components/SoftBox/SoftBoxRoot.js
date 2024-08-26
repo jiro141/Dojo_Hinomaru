@@ -1,19 +1,3 @@
-/**
-=========================================================
-* Soft UI Dashboard React - v4.0.1
-=========================================================
-
-* Product Page: https://www.creative-tim.com/product/soft-ui-dashboard-react
-* Copyright 2023 Creative Tim (https://www.creative-tim.com)
-
-Coded by www.creative-tim.com
-
- =========================================================
-
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-*/
-
-// @mui material components
 import Box from "@mui/material/Box";
 import { styled } from "@mui/material/styles";
 
@@ -77,16 +61,17 @@ export default styled(Box)(({ theme, ownerState }) => {
 
   // background value
   let backgroundValue = bgColor;
+  console.log(backgroundValue, "color de fondo ");
 
-  if (variant === "gradient") {
-    backgroundValue = validGradients.find((el) => el === bgColor)
-      ? linearGradient(gradients[bgColor].main, gradients[bgColor].state)
-      : white.main;
-  } else if (validColors.find((el) => el === bgColor)) {
-    backgroundValue = palette[bgColor] ? palette[bgColor].main : greyColors[bgColor];
-  } else {
-    backgroundValue = bgColor;
-  }
+  // if (variant === "gradient") {
+  //   backgroundValue = validGradients.find((el) => el === bgColor)
+  //     ? linearGradient(gradients[bgColor].main, gradients[bgColor].state)
+  //     : white.main;
+  // } else if (validColors.find((el) => el === bgColor)) {
+  //   backgroundValue = palette[bgColor] ? palette[bgColor].main : greyColors[bgColor];
+  // } else {
+  //   backgroundValue = bgColor;
+  // }
 
   // color value
   let colorValue = color;

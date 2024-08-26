@@ -1,23 +1,3 @@
-/**
-=========================================================
-* Soft UI Dashboard React - v4.0.1
-=========================================================
-
-* Product Page: https://www.creative-tim.com/product/soft-ui-dashboard-react
-* Copyright 2023 Creative Tim (https://www.creative-tim.com)
-
-Coded by www.creative-tim.com
-
- =========================================================
-
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-*/
-
-/**
-  This file is used for controlling the global states of the components,
-  you can customize the states for the different components here.
-*/
-
 import { createContext, useContext, useReducer, useMemo } from "react";
 
 // prop-types is a library for typechecking of props
@@ -56,6 +36,9 @@ function reducer(state, action) {
     case "LAYOUT": {
       return { ...state, layout: action.value };
     }
+    case "SET_LOADING": {
+      return { ...state, loading: action.value };
+    }
     default: {
       throw new Error(`Unhandled action type: ${action.type}`);
     }
@@ -73,6 +56,7 @@ function SoftUIControllerProvider({ children }) {
     openConfigurator: false,
     direction: "ltr",
     layout: "dashboard",
+    loading: false,  // Inicialización del estado de carga
   };
 
   const [controller, dispatch] = useReducer(reducer, initialState);
@@ -108,6 +92,9 @@ const setOpenConfigurator = (dispatch, value) => dispatch({ type: "OPEN_CONFIGUR
 const setDirection = (dispatch, value) => dispatch({ type: "DIRECTION", value });
 const setLayout = (dispatch, value) => dispatch({ type: "LAYOUT", value });
 
+// Funciones para manejar el estado del loader
+const setLoading = (dispatch, value) => dispatch({ type: "SET_LOADING", value });
+
 export {
   SoftUIControllerProvider,
   useSoftUIController,
@@ -119,4 +106,5 @@ export {
   setOpenConfigurator,
   setDirection,
   setLayout,
+  setLoading, // Exportar la función setLoading para controlar el loader
 };

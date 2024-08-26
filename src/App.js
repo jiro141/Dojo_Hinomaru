@@ -1,18 +1,3 @@
-/**
-=========================================================
-* Soft UI Dashboard React - v4.0.1
-=========================================================
-
-* Product Page: https://www.creative-tim.com/product/soft-ui-dashboard-react
-* Copyright 2023 Creative Tim (https://www.creative-tim.com)
-
-Coded by www.creative-tim.com
-
- =========================================================
-
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-*/
-
 import { useState, useEffect, useMemo } from "react";
 
 // react-router components
@@ -41,6 +26,7 @@ import createCache from "@emotion/cache";
 
 // Soft UI Dashboard React routes
 import routes from "routes";
+import ProtectedRoute from "context/ProtectedRoute";
 
 // Soft UI Dashboard React contexts
 import { useSoftUIController, setMiniSidenav, setOpenConfigurator } from "context";
@@ -102,7 +88,21 @@ export default function App() {
       }
 
       if (route.route) {
-        return <Route exact path={route.route} element={route.component} key={route.key} />;
+        // Envolver la ruta con ProtectedRoute si no es la ruta de inicio de sesión
+        return (
+          <Route
+            exact
+            path={route.route}
+            element={
+              route.route === "/sign-in" ? (
+                route.component
+              ) : (
+                <ProtectedRoute>{route.component}</ProtectedRoute>
+              )
+            }
+            key={route.key}
+          />
+        );
       }
 
       return null;
@@ -133,30 +133,7 @@ export default function App() {
   );
 
   return direction === "rtl" ? (
-    <CacheProvider value={rtlCache}>
-      <ThemeProvider theme={themeRTL}>
-        <CssBaseline />
-        {layout === "dashboard" && (
-          <>
-            <Sidenav
-              color={sidenavColor}
-              brand={brand}
-              brandName="Soft UI Dashboard"
-              routes={routes}
-              onMouseEnter={handleOnMouseEnter}
-              onMouseLeave={handleOnMouseLeave}
-            />
-            <Configurator />
-            {configsButton}
-          </>
-        )}
-        {layout === "vr" && <Configurator />}
-        <Routes>
-          {getRoutes(routes)}
-          <Route path="*" element={<Navigate to="/dashboard" />} />
-        </Routes>
-      </ThemeProvider>
-    </CacheProvider>
+    <></>
   ) : (
     <ThemeProvider theme={theme}>
       <CssBaseline />
@@ -174,10 +151,9 @@ export default function App() {
           {configsButton}
         </>
       )}
-      {layout === "vr" && <Configurator />}
       <Routes>
         {getRoutes(routes)}
-        <Route path="*" element={<Navigate to="/dashboard" />} />
+        <Route path="*" element={<Navigate to="/sign-in" />} />
       </Routes>
     </ThemeProvider>
   );
