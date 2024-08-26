@@ -1,69 +1,47 @@
-import { useState } from "react";
-
-// react-router-dom components
-import { Link } from "react-router-dom";
-import { useNavigate } from "react-router-dom";
-// @mui material components
+import { useState, useCallback } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import Switch from "@mui/material/Switch";
 import { Box } from "@mui/material";
-// Soft UI Dashboard React components
 import SoftBox from "components/SoftBox";
 import SoftTypography from "components/SoftTypography";
 import SoftInput from "components/SoftInput";
 import SoftButton from "components/SoftButton";
-
-// Authentication layout components
 import CoverLayout from "layouts/authentication/components/CoverLayout";
+import axios from "axios";
+import toast, { Toaster } from "react-hot-toast";
 
-// Images
+// Imagenes
 import curved9 from "assets/images/curved-images/curved-6.jpeg";
 import logo from "assets/images/curved-images/logo.png";
 import bg from "assets/images/curved-images/vecteezy_wave-style-japanese-pattern-background_6999783.avif";
 
-/// axios
-import axios from "axios";
-
-//toast
-import toast, { Toaster } from "react-hot-toast";
-
 function SignIn() {
-  //estados
-  const [formData, setFormData] = useState({
-    email: "",
-    password: "",
-  });
-  const navigate = useNavigate();
+  const [formData, setFormData] = useState({ email: "", password: "" });
   const [rememberMe, setRememberMe] = useState(true);
+  const navigate = useNavigate();
+
   const AIRTABLE_API_KEY = process.env.REACT_APP_AIRTABLE_API_KEY;
   const AIRTABLE_BASE_URL = process.env.REACT_APP_AIRTABLE_BASE_ID;
 
-  const handleSetRememberMe = () => setRememberMe(!rememberMe);
+  const handleSetRememberMe = useCallback(() => setRememberMe((prev) => !prev), []);
 
-  const handleChange = (e) => {
+  const handleChange = useCallback((e) => {
     const { name, value } = e.target;
-    setFormData((prevData) => ({
-      ...prevData,
-      [name]: value,
-    }));
-  };
+    setFormData((prevData) => ({ ...prevData, [name]: value }));
+  }, []);
 
   const handleSignIn = async (e) => {
     e.preventDefault();
+    const { email, password } = formData;
 
     try {
-      const { email, password } = formData;
-      const apiKey = AIRTABLE_API_KEY;
-      const baseId = AIRTABLE_BASE_URL;
-      const tableName = "Practicants";
-
-      const response = await axios.get(`https://api.airtable.com/v0/${baseId}/${tableName}`, {
-        headers: {
-          Authorization: `Bearer ${apiKey}`,
-        },
-        params: {
-          filterByFormula: `{email} = "${email}"`,
-        },
-      });
+      const response = await axios.get(
+        `https://api.airtable.com/v0/${AIRTABLE_BASE_URL}/Practicants`,
+        {
+          headers: { Authorization: `Bearer ${AIRTABLE_API_KEY}` },
+          params: { filterByFormula: `{email} = "${email}"` },
+        }
+      );
 
       const records = response.data.records;
 
@@ -72,19 +50,12 @@ function SignIn() {
         const selectedGrade = user["Selected Grade"];
         const FullName = user["Full Name"];
 
-        // Verificar la contraseña
         if (user.password === password) {
-          // Guardar un dato en localStorage
           localStorage.setItem("grade", selectedGrade[0]);
           localStorage.setItem("name", FullName);
-          // Redirigir al dashboard
           navigate("/dashboard");
         } else {
-          if (user.password != password) {
-            toast.error("Contraseña incorrecta.");
-          } else {
-            toast.error("Usuario no encontrado.");
-          }
+          toast.error("Contraseña incorrecta.");
         }
       } else {
         toast.error("Usuario no encontrado.");
@@ -100,10 +71,10 @@ function SignIn() {
       sx={{
         width: "100%",
         height: "100vh",
-        position: "relative", // Necesario para el overlay
+        position: "relative",
         backgroundImage: `url(${bg})`,
-        backgroundSize: "cover", // Hace que la imagen cubra toda la Box
-        backgroundPosition: "center", // Centra la imagen
+        backgroundSize: "cover",
+        backgroundPosition: "center",
         backgroundRepeat: "no-repeat",
       }}
     >
@@ -115,8 +86,8 @@ function SignIn() {
           left: 0,
           width: "100%",
           height: "100%",
-          backgroundColor: "#eaeaeaf3", // Color y opacidad del overlay
-          zIndex: 1, // Asegura que esté encima de la imagen de fondo
+          backgroundColor: "#eaeaeaf3",
+          zIndex: 1,
         }}
       >
         <CoverLayout
@@ -167,24 +138,10 @@ function SignIn() {
               </SoftTypography>
             </SoftBox>
             <SoftBox mt={4} mb={1}>
-              <SoftButton variant="gradient" color="info" fullWidth onClick={handleSignIn}>
+              <SoftButton variant="gradient" color="info" fullWidth type="submit">
                 Ingresar
               </SoftButton>
             </SoftBox>
-            {/* <SoftBox mt={3} textAlign="center">
-              <SoftTypography variant="button" color="text" fontWeight="regular">
-                Don&apos;t have an account?{" "}
-                <SoftTypography
-                  component={Link}
-                  variant="button"
-                  color="info"
-                  fontWeight="medium"
-                  textGradient
-                >
-                  Sign up
-                </SoftTypography>
-              </SoftTypography>
-            </SoftBox> */}
           </SoftBox>
         </CoverLayout>
       </Box>
