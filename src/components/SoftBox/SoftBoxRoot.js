@@ -61,7 +61,7 @@ export default styled(Box)(({ theme, ownerState }) => {
 
   // background value
   let backgroundValue = bgColor;
-  console.log(backgroundValue, "color de fondo ");
+
 
   // if (variant === "gradient") {
   //   backgroundValue = validGradients.find((el) => el === bgColor)

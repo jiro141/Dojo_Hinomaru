@@ -17,39 +17,75 @@ import Table from "examples/Tables/Table";
 import authorsTableData from "layouts/tables/data/authorsTableData";
 import projectsTableData from "layouts/tables/data/projectsTableData";
 import airtableRequest from "api/api";
+import { useAuthorsData } from "./data/authorsTableData";
 
 function Tables() {
-  const [data, setData] = useState([]);
-  const { columns, rows } = authorsTableData;
-  const { columns: prCols, rows: prRows } = projectsTableData;
+  const { columns } = authorsTableData;
+  const [rows, setRows] = useState([]); // Estado único para almacenar los datos de los autores
+  const gradeNames = [
+    "JūKyū", // 1
+    "KyuKyū", // 2
+    "Hachikyū", // 3
+    "Nanakyū", // 4
+    "Rokkyū", // 5
+    "Gokyū", // 6
+    "Yonkyū", // 7
+    "Sankyū", // 8
+    "Nikyū", // 9
+    "Ikkyū", // 10
+    "Kari Shodan", // 11
+    "Shodan", // 12
+    "Nidan", // 13
+    "Sandan", // 14
+    "Yondan", // 15
+    "Godan", // 16
+    "Rokudan", // 17
+    "Nanadan", // 18
+    "Hachidan", // 19
+    "Kyudan", // 20
+    "Jūdan", // 21
+  ];
 
-  // Función para obtener los datos de la API
-  const fetchData = useCallback(async () => {
-    try {
-      const response = await airtableRequest({ tableName: "Practicants" });
-      const filteredData = response.records
-        .filter((practicante) => practicante.fields.Active === true)
-        .map((practicante) => ({
-          id: practicante.id,
-          fullName: practicante.fields["Full Name"],
-          email: practicante.fields.email,
-          profilePicture:
-            practicante.fields["Profile Pictures"] && practicante.fields["Profile Pictures"][0]
-              ? practicante.fields["Profile Pictures"][0].url
-              : "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png",
-          // Puedes agregar más campos aquí si lo necesitas
-        }));
-
-      setData(filteredData);
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    }
-  }, []);
-
+  // useAuthorsData hook utilizado para cargar los datos
   useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await airtableRequest({ tableName: "Practicants" });
+        console.log(response, "daa");
+
+        const filteredData = response.records
+          .filter((practicante) => practicante.fields.Active === true)
+          .map((practicante) => ({
+            id: practicante.id,
+            image:
+              practicante.fields["Profile Pictures"] && practicante.fields["Profile Pictures"][0]
+                ? practicante.fields["Profile Pictures"][0].url
+                : "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png",
+            name: practicante.fields["Full Name"],
+            email: practicante.fields.Email,
+            step:practicante.fields.Step,
+            grade:
+              practicante.fields.Step &&
+              practicante.fields.Step >= 1 &&
+              practicante.fields.Step <= 21
+                ? gradeNames[practicante.fields.Step - 1]
+                : "N/A",
+            plan: practicante.fields.Plan || "N/A",
+            condition: practicante.fields.Notes ? "✅" : "",
+            Birthday: practicante.fields.Birthday,
+          }));
+        console.log(filteredData, "data filtrada");
+
+        setRows(filteredData);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+
     fetchData();
-  }, [fetchData]);
-console.log(data,' en table');
+  }, []); // Se ejecuta solo una vez al montar el componente
+
+  const { columns: prCols, rows: prRows } = projectsTableData;
 
   return (
     <DashboardLayout>
@@ -70,7 +106,7 @@ console.log(data,' en table');
                 },
               }}
             >
-              <Table columns={columns} rows={rows} data={data} />
+              <Table columns={columns} rows={rows} />
             </SoftBox>
           </Card>
         </SoftBox>
