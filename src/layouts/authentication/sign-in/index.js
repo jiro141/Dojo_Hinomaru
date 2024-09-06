@@ -9,6 +9,7 @@ import SoftButton from "components/SoftButton";
 import CoverLayout from "layouts/authentication/components/CoverLayout";
 import axios from "axios";
 import toast, { Toaster } from "react-hot-toast";
+import bcrypt from "bcryptjs";
 
 // Imagenes
 import curved9 from "assets/images/curved-images/curved-6.jpeg";
@@ -39,7 +40,7 @@ function SignIn() {
         `https://api.airtable.com/v0/${AIRTABLE_BASE_URL}/Practicants`,
         {
           headers: { Authorization: `Bearer ${AIRTABLE_API_KEY}` },
-          params: { filterByFormula: `{email} = "${email}"` },
+          params: { filterByFormula: `{Email} = "${email}"` }, // Asegúrate de que el campo 'Email' coincida con el de Airtable
         }
       );
 
@@ -48,11 +49,18 @@ function SignIn() {
       if (records.length > 0) {
         const user = records[0].fields;
         const selectedGrade = user["Selected Grade"];
-        const FullName = user["Full Name"];
+        const fullName = user["Full Name"];
+        const hashedPassword = user.password; // La contraseña almacenada es el hash
 
-        if (user.password === password) {
+        // Usa bcrypt para comparar la contraseña ingresada con el hash almacenado
+        const isPasswordValid = bcrypt.compareSync(password, hashedPassword);
+
+        if (isPasswordValid) {
+          // Guardar el grado y el nombre en localStorage
           localStorage.setItem("grade", selectedGrade[0]);
-          localStorage.setItem("name", FullName);
+          localStorage.setItem("name", fullName);
+
+          // Redirigir al dashboard
           navigate("/dashboard");
         } else {
           toast.error("Contraseña incorrecta.");

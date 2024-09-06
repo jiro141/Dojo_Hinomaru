@@ -1,31 +1,35 @@
+import bcrypt from "bcryptjs";
 import airtableRequest from "api/api";
 
 export const submitForm = async (formData) => {
   const currentDate = new Date().toISOString().split("T")[0];
-  console.log(formData, "prueba");
+
+  // Generar hash de la contraseña usando bcryptjs
+  const salt = bcrypt.genSaltSync(10); // Puedes cambiar el valor de "10" si deseas más rounds
+  const hashedPassword = bcrypt.hashSync(formData.password, salt); // Hasheando la contraseña
 
   // Definir el payload que será enviado a Airtable
   const payload = {
     fields: {
       "First Name": formData.firstName,
-      Active: true, // Añadido, como en el payload de Postman
-      // Elimina el campo "ID" si Airtable no permite su modificación.
-      "Plan Class": formData.planClass, // Asegúrate de que el valor es válido
+      Active: true,
+      ID: Number(formData.idNumber),
+      "Plan Class": formData.planClass,
       "Last Name (2nd)": formData.secondLastName,
       "Self Represent": formData.selfRepresent,
       Birthday: formData.birthDate,
-      "Start date": currentDate, 
-      password: formData.password,
-      Exentos: false, // Añadido, como en el payload de Postman
+      "Start date": currentDate,
+      password: hashedPassword, // Enviar la contraseña hasheada
+      Exentos: false,
       "Last Name": formData.lastName,
       "Born Address": formData.bornAddress,
-      Address: formData.address, // Asegúrate de que el formato de la dirección es correcto
-      Estado: "Regular", // Asegúrate de que el valor "Instructor" es válido
+      Address: formData.address,
+      Estado: "Regular",
       "Phone Number": formData.phoneNumber,
-      "Attendance 2": "1", // Si este campo es requerido, añade el valor
+      "Attendance 2": "1",
       Email: formData.email,
       "Middle Name": formData.middleName,
-      userName:formData.userName,
+      userName: formData.userName,
       "Selected Grade": ["recnzGJhKPTVvg79E"],
     },
   };
@@ -33,12 +37,11 @@ export const submitForm = async (formData) => {
   try {
     // Llamada a la función airtableRequest para enviar el formulario a Airtable
     const response = await airtableRequest({
-      tableName: "Practicants", // Nombre de la tabla en Airtable
-      method: "POST", // Método HTTP
-      data: payload, // Payload con los datos del formulario
+      tableName: "Practicants",
+      method: "POST",
+      data: payload,
     });
-
-    console.log("Datos enviados correctamente:", response);
+    return response;
   } catch (error) {
     console.error("Error al enviar los datos:", error);
   }

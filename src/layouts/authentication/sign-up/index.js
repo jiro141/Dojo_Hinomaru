@@ -19,6 +19,8 @@ import {
   InputLabel,
 } from "@mui/material";
 
+import toast from "react-hot-toast";
+
 // Soft UI Dashboard React components
 import SoftBox from "components/SoftBox";
 import SoftTypography from "components/SoftTypography";
@@ -31,6 +33,7 @@ import Socials from "layouts/authentication/components/Socials";
 import Separator from "layouts/authentication/components/Separator";
 
 import { submitForm } from "api/config/practicants";
+import { Toaster } from "react-hot-toast";
 
 function SignUp() {
   const steps = ["Datos personales", "Datos de contacto", "Representante", "Cuenta"];
@@ -114,8 +117,16 @@ function SignUp() {
   const handleSubmit = async () => {
     try {
       // Llamar a submitForm y pasar el formData
-      await submitForm(formData);
-      console.log("Formulario enviado con éxito");
+      const response = await submitForm(formData);
+      if (response) {
+        toast.success("El practicante fue registrado con exito!", response);
+        console.log("Formulario enviado con éxito", response);
+        setTimeout(() => {
+          window.location.reload();  
+        }, 4000);  
+      } else {
+        toast.error("Error al enviar el formulario");
+      }
     } catch (error) {
       console.error("Error al enviar el formulario:", error);
     }
@@ -520,6 +531,7 @@ function SignUp() {
       }
     >
       <Card>
+        <Toaster />
         <SoftBox p={3} mb={1} textAlign="center">
           <SoftTypography variant="h5" fontWeight="medium">
             Register with
