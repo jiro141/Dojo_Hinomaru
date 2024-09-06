@@ -30,59 +30,95 @@ import BasicLayout from "layouts/authentication/components/BasicLayout";
 import Socials from "layouts/authentication/components/Socials";
 import Separator from "layouts/authentication/components/Separator";
 
-// Images
+import { submitForm } from "api/config/practicants";
 
 function SignUp() {
+  const steps = ["Datos personales", "Datos de contacto", "Representante", "Cuenta"];
+  const gradeNames = ["Haime", "Bushido", "Kuro Obi"];
+
   const [activeStep, setActiveStep] = useState(0);
   const [agreement, setAgreement] = useState(false);
+  const [isAutorepresentado, setIsAutorepresentado] = useState(false);
+  const [isRepresentante, setIsRepresentante] = useState(false);
+  const [selectedGrade, setSelectedGrade] = useState("");
 
-  const steps = ["Datos personales", "Datos de contacto", "Representante", "Cuenta"];
+  const [formData, setFormData] = useState({
+    firstName: "", // "First Name"
+    middleName: "", // "Middle Name"
+    lastName: "", // "Last Name"
+    secondLastName: "", // "Last Name (2nd)"
+    idNumber: "", // "ID"
+    selfRepresent: false, // "Self Represent"
+    birthDate: "", // "Birthday"
+    startDate: "", // "Start date"
+    password: "", // "password"
+    bornAddress: "", // "Born Address"
+    address: "", // "Address"
+    estado: "", // "Estado"
+    phoneNumber: "", // "Phone Number"
+    attendance2: "", // "Attendance 2"
+    email: "", // "Email"
+    userName: "",
+    planClass: "",
+  });
+
+  const [representanteFormData, setRepresentanteFormData] = useState({
+    representanteNombre: "", // "Nombre del representante"
+    representanteApellido: "", // "Apellido del representante"
+    representanteCedula: "", // "Cedula del representante"
+    representanteFechaNacimiento: "", // "Fecha de nacimiento del representante"
+    representanteTelefono: "", // "Telefono del representante"
+    representanteEmail: "", // "Correo del representante"
+    representanteDireccion: "", // "Dirección de residencia del representante"
+  });
+
+  const handleChange = (event) => {
+    const { name, value, type, checked } = event.target;
+    setFormData({
+      ...formData,
+      [name]: type === "checkbox" ? checked : value,
+    });
+  };
+
+  const handleRepresentanteChange = (event) => {
+    const { type, name, value, checked } = event.target;
+
+    if (type === "checkbox") {
+      setIsRepresentante(checked); // Activar o desactivar el switch de representante
+      setIsAutorepresentado(false); // Deshabilitar la opción de autorepresentado
+    } else {
+      setRepresentanteFormData({
+        ...representanteFormData,
+        [name]: value,
+      });
+    }
+  };
+
+  const handleSetAgreement = () => setAgreement(!agreement);
+  const handleSetAgremment = () => setAgremment(!agreement);
+
+  const isLastStep = activeStep === steps.length - 1;
 
   const handleNext = () => setActiveStep((prevStep) => prevStep + 1);
   const handleBack = () => setActiveStep((prevStep) => prevStep - 1);
-  const handleSetAgreement = () => setAgreement(!agreement);
-
-  const isLastStep = activeStep === steps.length - 1;
-  const handleSetAgremment = () => setAgremment(!agreement);
-  const [isAutorepresentado, setIsAutorepresentado] = useState(false);
-  const [isRepresentante, setIsRepresentante] = useState(false);
 
   const handleAutorepresentadoChange = (event) => {
     setIsAutorepresentado(event.target.checked);
     setIsRepresentante(false); // Deshabilitar la otra opción
   };
 
-  const handleRepresentanteChange = (event) => {
-    setIsRepresentante(event.target.checked);
-    setIsAutorepresentado(false); // Deshabilitar la otra opción
-  };
-  const gradeNames = [
-    "KyuKyū", // 2
-    "Hachikyū", // 3
-    "Nanakyū", // 4
-    "Rokkyū", // 5
-    "Gokyū", // 6
-    "Yonkyū", // 7
-    "Sankyū", // 8
-    "Nikyū", // 9
-    "Ikkyū", // 10
-    "Kari Shodan", // 11
-    "Shodan", // 12
-    "Nidan", // 13
-    "Sandan", // 14
-    "Yondan", // 15
-    "Godan", // 16
-    "Rokudan", // 17
-    "Nanadan", // 18
-    "Hachidan", // 19
-    "Kyudan", // 20
-    "Jūdan", // 21
-  ];
-
-  const [selectedGrade, setSelectedGrade] = useState("");
-
   const handleGradeChange = (event) => {
     setSelectedGrade(event.target.value);
+  };
+
+  const handleSubmit = async () => {
+    try {
+      // Llamar a submitForm y pasar el formData
+      await submitForm(formData);
+      console.log("Formulario enviado con éxito");
+    } catch (error) {
+      console.error("Error al enviar el formulario:", error);
+    }
   };
 
   const renderStepContent = (step) => {
@@ -96,7 +132,12 @@ function SignUp() {
                   <SoftTypography variant="subtitle2" fontWeight="medium">
                     Primer nombre
                   </SoftTypography>
-                  <SoftInput placeholder="Primer nombre" />
+                  <SoftInput
+                    name="firstName"
+                    value={formData.firstName}
+                    onChange={handleChange}
+                    placeholder="Primer nombre"
+                  />
                 </SoftBox>
               </Grid>
               <Grid item xs={12} md={6}>
@@ -104,7 +145,12 @@ function SignUp() {
                   <SoftTypography variant="subtitle2" fontWeight="medium">
                     Segundo nombre
                   </SoftTypography>
-                  <SoftInput placeholder="Segundo nombre" />
+                  <SoftInput
+                    name="middleName"
+                    value={formData.middleName}
+                    onChange={handleChange}
+                    placeholder="Segundo nombre"
+                  />
                 </SoftBox>
               </Grid>
               <Grid item xs={12} md={6}>
@@ -112,7 +158,12 @@ function SignUp() {
                   <SoftTypography variant="subtitle2" fontWeight="medium">
                     Primer apellido
                   </SoftTypography>
-                  <SoftInput placeholder="Primer apellido" />
+                  <SoftInput
+                    name="lastName"
+                    value={formData.lastName}
+                    onChange={handleChange}
+                    placeholder="Primer apellido"
+                  />
                 </SoftBox>
               </Grid>
               <Grid item xs={12} md={6}>
@@ -120,7 +171,12 @@ function SignUp() {
                   <SoftTypography variant="subtitle2" fontWeight="medium">
                     Segundo apellido
                   </SoftTypography>
-                  <SoftInput placeholder="Segundo apellido" />
+                  <SoftInput
+                    name="secondLastName"
+                    value={formData.secondLastName}
+                    onChange={handleChange}
+                    placeholder="Segundo apellido"
+                  />
                 </SoftBox>
               </Grid>
               <Grid item xs={12} md={6}>
@@ -128,7 +184,13 @@ function SignUp() {
                   <SoftTypography variant="subtitle2" fontWeight="medium">
                     Fecha de nacimiento
                   </SoftTypography>
-                  <SoftInput type="date" placeholder="Fecha de nacimiento" />
+                  <SoftInput
+                    type="date"
+                    name="birthDate"
+                    value={formData.birthDate}
+                    onChange={handleChange}
+                    placeholder="Fecha de nacimiento"
+                  />
                 </SoftBox>
               </Grid>
               <Grid item xs={12} md={6}>
@@ -136,17 +198,12 @@ function SignUp() {
                   <SoftTypography variant="subtitle2" fontWeight="medium">
                     Cedula
                   </SoftTypography>
-                  <SoftInput type="number" placeholder="Cedula" />
-                </SoftBox>
-              </Grid>
-              <Grid item xs={12} md={12}>
-                <SoftBox mb={2}>
-                  <SoftTypography variant="subtitle2" fontWeight="medium">
-                    Comentario
-                  </SoftTypography>
                   <SoftInput
-                    type="text"
-                    placeholder="Detalles importantes como si padece alguna enfermedad o condicion fisica a tomar en cuenta."
+                    type="number"
+                    name="idNumber"
+                    value={formData.idNumber}
+                    onChange={handleChange}
+                    placeholder="Cedula"
                   />
                 </SoftBox>
               </Grid>
@@ -162,7 +219,12 @@ function SignUp() {
                   <SoftTypography variant="subtitle2" fontWeight="medium">
                     Telefono de contacto
                   </SoftTypography>
-                  <SoftInput placeholder="Telefono de contacto" />
+                  <SoftInput
+                    name="phoneNumber"
+                    value={formData.phoneNumber}
+                    onChange={handleChange}
+                    placeholder="Telefono de contacto"
+                  />
                 </SoftBox>
               </Grid>
               <Grid item xs={12} md={6}>
@@ -170,7 +232,13 @@ function SignUp() {
                   <SoftTypography variant="subtitle2" fontWeight="medium">
                     Correo electronico
                   </SoftTypography>
-                  <SoftInput type="email" placeholder="Email" />
+                  <SoftInput
+                    type="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    placeholder="Email"
+                  />
                 </SoftBox>
               </Grid>
               <Grid item xs={12} md={6}>
@@ -178,7 +246,12 @@ function SignUp() {
                   <SoftTypography variant="subtitle2" fontWeight="medium">
                     Dirección de residencia
                   </SoftTypography>
-                  <SoftInput placeholder="Dirrección de residencia" />
+                  <SoftInput
+                    name="address"
+                    value={formData.address}
+                    onChange={handleChange}
+                    placeholder="Dirección de residencia"
+                  />
                 </SoftBox>
               </Grid>
             </Grid>
@@ -189,6 +262,7 @@ function SignUp() {
           <>
             {/* Autorepresentado Switch */}
             <Grid container spacing={2}>
+              {/* Autorepresentado Switch */}
               <Grid item xs={12} md={6}>
                 <SoftBox mb={2} display="flex" alignItems="center" gap="20px">
                   <SoftTypography
@@ -230,14 +304,16 @@ function SignUp() {
                 </SoftBox>
               </Grid>
 
-              {/* Input Fields */}
+              {/* Campos del representante */}
               <Grid item xs={12} md={6}>
                 <SoftBox mb={2}>
                   <SoftTypography variant="subtitle2" fontWeight="medium">
                     Nombre del representante
                   </SoftTypography>
                   <SoftInput
-                    type="text"
+                    name="representanteNombre"
+                    value={representanteFormData.representanteNombre}
+                    onChange={handleRepresentanteChange}
                     placeholder="Nombre"
                     disabled={isAutorepresentado || isRepresentante}
                   />
@@ -250,6 +326,9 @@ function SignUp() {
                     Apellido del representante
                   </SoftTypography>
                   <SoftInput
+                    name="representanteApellido"
+                    value={representanteFormData.representanteApellido}
+                    onChange={handleRepresentanteChange}
                     placeholder="Apellido"
                     disabled={isAutorepresentado || isRepresentante}
                   />
@@ -262,6 +341,9 @@ function SignUp() {
                     Cedula del representante
                   </SoftTypography>
                   <SoftInput
+                    name="representanteCedula"
+                    value={representanteFormData.representanteCedula}
+                    onChange={handleRepresentanteChange}
                     placeholder="Cedula del representante"
                     disabled={isAutorepresentado || isRepresentante}
                   />
@@ -275,6 +357,9 @@ function SignUp() {
                   </SoftTypography>
                   <SoftInput
                     type="date"
+                    name="representanteFechaNacimiento"
+                    value={representanteFormData.representanteFechaNacimiento}
+                    onChange={handleRepresentanteChange}
                     placeholder="Fecha de nacimiento"
                     disabled={isAutorepresentado || isRepresentante}
                   />
@@ -287,6 +372,9 @@ function SignUp() {
                     Telefono de contacto
                   </SoftTypography>
                   <SoftInput
+                    name="representanteTelefono"
+                    value={representanteFormData.representanteTelefono}
+                    onChange={handleRepresentanteChange}
                     placeholder="Telefono de contacto"
                     disabled={isAutorepresentado || isRepresentante}
                   />
@@ -300,6 +388,9 @@ function SignUp() {
                   </SoftTypography>
                   <SoftInput
                     type="email"
+                    name="representanteEmail"
+                    value={representanteFormData.representanteEmail}
+                    onChange={handleRepresentanteChange}
                     placeholder="Email"
                     disabled={isAutorepresentado || isRepresentante}
                   />
@@ -312,6 +403,9 @@ function SignUp() {
                     Dirrección de residencia
                   </SoftTypography>
                   <SoftInput
+                    name="representanteDireccion"
+                    value={representanteFormData.representanteDireccion}
+                    onChange={handleRepresentanteChange}
                     placeholder="Dirrección de residencia"
                     disabled={isAutorepresentado || isRepresentante}
                   />
@@ -324,15 +418,17 @@ function SignUp() {
         return (
           <>
             <Grid container spacing={2}>
+              {/* Usuario */}
               <Grid item xs={12} md={6}>
                 <SoftBox mb={2}>
                   <SoftTypography variant="subtitle2" fontWeight="medium">
-                    Grado
+                    Plan
                   </SoftTypography>
                   <select
-                    id="grade-select"
-                    value={selectedGrade}
-                    onChange={handleGradeChange}
+                    id="plan-select"
+                    name="planClass" // Asegúrate de que el name sea el mismo que en formData
+                    value={formData.planClass} // Valor que viene del estado formData
+                    onChange={handleChange} // Llama a handleChange cuando el usuario seleccione algo
                     style={{
                       width: "100%",
                       padding: "8px",
@@ -341,9 +437,11 @@ function SignUp() {
                       border: "1px solid #ccc",
                     }}
                   >
-                    <option value={1}>JūKyū</option>
+                    <option value="" disabled>
+                      Selecciona un plan
+                    </option>
                     {gradeNames.map((grade, index) => (
-                      <option key={index} value={index + 2}>
+                      <option key={index} value={grade}>
                         {grade}
                       </option>
                     ))}
@@ -355,25 +453,41 @@ function SignUp() {
                   <SoftTypography variant="subtitle2" fontWeight="medium">
                     Usuario
                   </SoftTypography>
-                  <SoftInput type="text" placeholder="Nombre de usuario" />
+                  <SoftInput
+                    type="text"
+                    name="userName" // nombre del campo en el estado
+                    value={formData.userName} // valor tomado del estado formData
+                    onChange={handleChange} // actualiza el estado con el nuevo valor
+                    placeholder="Nombre de usuario"
+                  />
                 </SoftBox>
               </Grid>
+
+              {/* Contraseña */}
               <Grid item xs={12} md={6}>
                 <SoftBox mb={2}>
                   <SoftTypography variant="subtitle2" fontWeight="medium">
                     Contraseña
                   </SoftTypography>
-                  <SoftInput type="password" placeholder="Contraseña" />
+                  <SoftInput
+                    type="password"
+                    name="password" // nombre del campo en el estado
+                    value={formData.password} // valor tomado del estado formData
+                    onChange={handleChange} // actualiza el estado con el nuevo valor
+                    placeholder="Contraseña"
+                  />
                 </SoftBox>
               </Grid>
-              <Grid item xs={12} md={6}>
-                <SoftBox my={3} display="flex" alignItems="center" gap='20px'>
+
+              {/* Switch de términos y condiciones */}
+              {/* <Grid item xs={12} md={6}>
+                <SoftBox my={3} display="flex" alignItems="center" gap="20px">
                   <SoftTypography
                     variant="button"
                     fontWeight="regular"
                     sx={{ cursor: "pointer", userSelect: "none", ml: 2 }} // Margen izquierdo para separar el texto del switch
                   >
-                   Aceptas
+                    Aceptas
                   </SoftTypography>
                   <SoftTypography
                     component="a"
@@ -385,11 +499,13 @@ function SignUp() {
                     Los términos y condiciones
                   </SoftTypography>
                   <Switch
-                    checked={isAutorepresentado}
+                    checked={formData.acceptTerms || false} // ejemplo de switch controlado
+                    name="acceptTerms"
+                    onChange={handleChange} // para manejar el cambio de estado del switch
                     sx={{ alignSelf: "center" }} // Alineación vertical
                   />
                 </SoftBox>
-              </Grid>
+              </Grid> */}
             </Grid>
           </>
         );
@@ -433,9 +549,9 @@ function SignUp() {
               <SoftButton
                 variant="gradient"
                 color="dark"
-                onClick={isLastStep ? () => alert("Formulario completado") : handleNext}
+                onClick={isLastStep ? handleSubmit : handleNext}
               >
-                {isLastStep ? "Registrate" : "Siguiente"}
+                {isLastStep ? "Regístrate" : "Siguiente"}
               </SoftButton>
             </SoftBox>
           </SoftBox>
@@ -443,16 +559,16 @@ function SignUp() {
 
         <SoftBox mt={3} textAlign="center">
           <SoftTypography variant="button" color="text" fontWeight="regular">
-            Already have an account?&nbsp;
+            ya tienes una cuenta?&nbsp;
             <SoftTypography
               component={Link}
-              to="/authentication/sign-in"
+              to="/sign-in"
               variant="button"
               color="dark"
               fontWeight="bold"
               textGradient
             >
-              Sign in
+              inicia sesion
             </SoftTypography>
           </SoftTypography>
         </SoftBox>
