@@ -51,8 +51,6 @@ function Tables() {
     const fetchData = async () => {
       try {
         const response = await airtableRequest({ tableName: "Practicants" });
-        console.log(response, "daa");
-
         const filteredData = response.records
           .filter((practicante) => practicante.fields.Active === true)
           .map((practicante) => ({
@@ -74,8 +72,6 @@ function Tables() {
             condition: practicante.fields.Notes ? "✅" : "",
             Birthday: practicante.fields.Birthday,
           }));
-        console.log(filteredData, "data filtrada");
-
         setRows(filteredData);
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -94,7 +90,7 @@ function Tables() {
         <SoftBox mb={3}>
           <Card>
             <SoftBox display="flex" justifyContent="space-between" alignItems="center" p={3}>
-              <SoftTypography variant="h6">Authors table</SoftTypography>
+              <SoftTypography variant="h6">Practicantes</SoftTypography>
             </SoftBox>
             <SoftBox
               sx={{
