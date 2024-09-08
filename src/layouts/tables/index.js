@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from "react";
 
 // @mui material components
 import Card from "@mui/material/Card";
+import { Box, Button, Modal } from "@mui/material";
 
 // Soft UI Dashboard React components
 import SoftBox from "components/SoftBox";
@@ -18,9 +19,27 @@ import authorsTableData from "layouts/tables/data/authorsTableData";
 import projectsTableData from "layouts/tables/data/projectsTableData";
 import airtableRequest from "api/api";
 import { useAuthorsData } from "./data/authorsTableData";
+import DataFields from "examples/modals/practicants";
 
 function Tables() {
   const { columns } = authorsTableData;
+  const [selectedId, setSelectedId] = useState(null);
+  const [open, setOpen] = React.useState(false);
+  const handleOpen = (id) => {
+    console.log(id);
+
+    setOpen(!open);
+  };
+  const style = {
+    position: "absolute",
+    top: "50%",
+    left: "50%",
+    transform: "translate(-50%, -50%)",
+    // width: 800,
+    // bgcolor: "background.paper",
+    boxShadow: 24,
+    borderRadius: "16px", // Añade border radius aquí
+  };
   const [rows, setRows] = useState([]); // Estado único para almacenar los datos de los autores
   const gradeNames = [
     "JūKyū", // 1
@@ -51,6 +70,8 @@ function Tables() {
     const fetchData = async () => {
       try {
         const response = await airtableRequest({ tableName: "Practicants" });
+        console.log(response, "lista full");
+
         const filteredData = response.records
           .filter((practicante) => practicante.fields.Active === true)
           .map((practicante) => ({
@@ -61,7 +82,7 @@ function Tables() {
                 : "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png",
             name: practicante.fields["Full Name"],
             email: practicante.fields.Email,
-            step:practicante.fields.Step,
+            step: practicante.fields.Step,
             grade:
               practicante.fields.Step &&
               practicante.fields.Step >= 1 &&
@@ -102,12 +123,28 @@ function Tables() {
                 },
               }}
             >
-              <Table columns={columns} rows={rows} />
+              <Table
+                columns={columns}
+                rows={rows}
+                selectedId={selectedId}
+                setSelectedId={setSelectedId}
+                handleOpen={handleOpen}
+              />
             </SoftBox>
           </Card>
         </SoftBox>
       </SoftBox>
       <Footer />
+      <Modal
+        open={open}
+        onClose={handleOpen}
+        aria-labelledby="child-modal-title"
+        aria-describedby="child-modal-description"
+      >
+        <Box sx={{ ...style}}>
+          <DataFields selectedId={selectedId} />
+        </Box>
+      </Modal>
     </DashboardLayout>
   );
 }

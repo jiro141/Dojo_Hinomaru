@@ -46,3 +46,16 @@ export const submitForm = async (formData) => {
     console.error("Error al enviar los datos:", error);
   }
 };
+
+//details practicats
+export const getPracticants = async (id) => {
+  console.log(id);
+  
+  try {
+    const response = await airtableRequest({ tableName: "Practicants", id: id });
+    const filteredData = response.fields
+    return filteredData;
+  } catch (error) {
+    console.error("Error fetching data:", error);
+  }
+};

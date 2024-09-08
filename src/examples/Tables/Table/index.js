@@ -24,13 +24,12 @@ import colors from "assets/theme/base/colors";
 import typography from "assets/theme/base/typography";
 import borders from "assets/theme/base/borders";
 
-function Table({ columns, rows }) {
-  const [selectedId, setSelectedId] = useState(null);
-
+function Table({ columns, rows, setSelectedId, handleOpen }) {
   const handleEditClick = (id) => {
-    setSelectedId(id);
-    console.log("Selected ID:", id);
-  };
+    setSelectedId(id); // Estableces el ID seleccionado
+    handleOpen(id);
+  };  
+  
   const gradeColors = [
     "#FFFFFF", // 1
     "#FFFFFF", // 2
@@ -54,7 +53,6 @@ function Table({ columns, rows }) {
     "#000000", // 20
     "#000000", // 21
   ];
-  console.log(gradeColors);
 
   const getTextColor = (backgroundColor) => {
     // Determina si se necesita texto blanco o negro basado en el color de fondo

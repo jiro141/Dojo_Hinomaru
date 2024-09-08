@@ -34,8 +34,8 @@ const colors = {
   },
 
   info: {
-    main: "#17c1e8",
-    focus: "#3acaeb",
+    main: "#e11b14",
+    focus: "#e2003c",
   },
 
   success: {
@@ -77,8 +77,8 @@ const colors = {
 
   gradients: {
     primary: {
-      main: "#7928ca",
-      state: "#ff0080",
+      main: "#c00802",
+      state: "#c00802",
     },
 
     secondary: {
