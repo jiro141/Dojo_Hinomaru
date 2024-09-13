@@ -13,7 +13,7 @@ import createCache from "@emotion/cache";
 import routes from "routes";
 import ProtectedRoute from "context/ProtectedRoute";
 import { useSoftUIController, setMiniSidenav, setOpenConfigurator } from "context";
-import brand from "assets/images/logo-ct.png";
+import brand from "assets/images/curved-images/logo.png";
 import { Box } from "@mui/material";
 import bg from "./assets/images/curved-images/vecteezy_wave-style-japanese-pattern-background_6999783.avif"
 

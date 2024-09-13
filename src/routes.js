@@ -7,6 +7,7 @@ import RTL from "layouts/rtl";
 import Profile from "layouts/profile";
 import SignIn from "layouts/authentication/sign-in";
 import SignUp from "layouts/authentication/sign-up";
+import Calendar from "layouts/Calendar";
 
 // Soft UI Dashboard React icons
 import Shop from "examples/Icons/Shop";
@@ -17,6 +18,7 @@ import SpaceShip from "examples/Icons/SpaceShip";
 import CustomerSupport from "examples/Icons/CustomerSupport";
 import CreditCard from "examples/Icons/CreditCard";
 import Cube from "examples/Icons/Cube";
+import { FaCalendarCheck } from "react-icons/fa";
 
 const routes = [
   {
@@ -39,20 +41,11 @@ const routes = [
   },
   {
     type: "collapse",
-    name: "Billing",
-    key: "billing",
-    route: "/billing",
-    icon: <CreditCard size="12px" />,
-    component: <Billing />,
-    noCollapse: true,
-  },
-  {
-    type: "collapse",
-    name: "Virtual Reality",
-    key: "virtual-reality",
-    route: "/virtual-reality",
-    icon: <Cube size="12px" />,
-    component: <VirtualReality />,
+    name: "Clases",
+    key: "Clases",
+    route: "/Clases",
+    icon: <FaCalendarCheck  size="12px" />,
+    component: <Calendar />,
     noCollapse: true,
   },
   { type: "title", title: "Account Pages", key: "account-pages" },

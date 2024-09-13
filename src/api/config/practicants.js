@@ -49,12 +49,39 @@ export const submitForm = async (formData) => {
 
 //details practicats
 export const getPracticants = async (id) => {
-  console.log(id);
-  
+
   try {
     const response = await airtableRequest({ tableName: "Practicants", id: id });
-    const filteredData = response.fields
+    const filteredData = response.fields;
     return filteredData;
+  } catch (error) {
+    console.error("Error fetching data:", error);
+  }
+};
+
+export const putPracticants = async (id, fields) => {
+  // Verificar si el campo "password" está en los fields
+  if (fields.password) {
+    const salt = bcrypt.genSaltSync(10);
+    const hashedPassword = bcrypt.hashSync(fields.password, salt);
+    
+    // Reemplazar el campo password con su valor hasheado
+    fields.password = hashedPassword;
+  }
+
+  const dataPracticant = {
+    fields
+  };
+
+  try {
+    const response = await airtableRequest({
+      tableName: "Practicants",
+      method: "PATCH",
+      id: id,
+      data: dataPracticant,
+    });
+
+    return response;
   } catch (error) {
     console.error("Error fetching data:", error);
   }

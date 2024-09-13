@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Card, CardContent, Typography, Grid, Divider, Box } from "@mui/material";
+import { Card, CardContent, Typography, Grid, Divider, Box, Button } from "@mui/material";
 import { getPracticants } from "api/config/practicants";
 import SoftAvatar from "components/SoftAvatar";
 import SoftBox from "components/SoftBox";
@@ -8,9 +8,22 @@ import ContactPhoneIcon from "@mui/icons-material/ContactPhone";
 import AccountBoxIcon from "@mui/icons-material/AccountBox";
 import PersonIcon from "@mui/icons-material/Person";
 import SoftButton from "components/SoftButton";
+import EditIcon from "@mui/icons-material/Edit";
+import SoftInput from "components/SoftInput";
+import CloseIcon from "@mui/icons-material/Close";
+import { putPracticants } from "api/config/practicants";
+import { getRepresentatives } from "api/config/representatives";
+import toast from "react-hot-toast";
+import { Toaster } from "react-hot-toast";
 const DataFields = (selectedId) => {
   const [practicantData, setPracticantData] = useState(null);
-  const [activeSection, setActiveSection] = useState("personal"); // Estado para manejar la sección activa
+  const [representativesData, setRepresentativesData] = useState(null);
+  const [activeSection, setActiveSection] = useState("personal");
+  const [isEdit, setIsEdit] = useState(false);
+  const [editedData, setEditedData] = useState({});
+  const handleEdit = () => {
+    setIsEdit(!isEdit);
+  };
   const gradeColors = [
     "#FFFFFF", // 1
     "#FFFFFF", // 2
@@ -71,10 +84,35 @@ const DataFields = (selectedId) => {
       console.error("Error fetching practicants:", error);
     }
   };
+  const Representatives = async () => {
+    try {
+      const response = await getRepresentatives(practicantData.Representatives[0]);
+      setRepresentativesData(response);
+    } catch (error) {
+      console.error("Error fetching practicants:", error);
+    }
+  };
+  const handleInputChange = (field, value) => {
+    // Actualizamos el practicantData con el nuevo valor
+    setPracticantData({
+      ...practicantData,
+      [field]: value,
+    });
+
+    // Si el campo ha sido editado, lo agregamos a editedData
+    setEditedData((prevEditedData) => ({
+      ...prevEditedData,
+      [field]: value,
+    }));
+  };
+  console.log(editedData, "data editada");
 
   useEffect(() => {
     dataPracticants();
   }, [selectedId]);
+  useEffect(() => {
+    Representatives();
+  }, [practicantData]);
 
   // Comprobamos si practicantData está disponible
   if (!practicantData) {
@@ -97,78 +135,217 @@ const DataFields = (selectedId) => {
       ? gradeColors[practicantData.Step[0]]
       : "#000";
   const textColor = getTextColor(backgroundColor);
-  // Función para renderizar los datos según la sección activa
+
+  const editPracticant = async (id, editedData) => {
+    const practicans = await putPracticants(id, editedData);
+    toast.success(`El practicante ${practicans.fields["Full Name"]} fue actualizado con exito!`);
+  };
+
   const renderSection = () => {
-    console.log(practicantData.Step[0], "color");
-
-    console.log(textColor, "color del texto");
-
     switch (activeSection) {
       case "personal":
         return (
           <>
-            <Typography variant="body2" color="textSecondary" align="center">
-              <strong>Nombre Completo:</strong> {practicantData["Full Name"]}
-            </Typography>
-            <Typography variant="body2" color="textSecondary" align="center" mt={1}>
-              <strong>Cédula:</strong> {practicantData.ID}
-            </Typography>
-            <Typography variant="body2" color="textSecondary" align="center" mt={1}>
-              <strong>Notas:</strong> {practicantData.Notes ? practicantData.Notes : "Sin notas"}
-            </Typography>
-            <Typography variant="body2" color="textSecondary" align="center" mt={1}>
-              <strong>Edad:</strong> {practicantData.Age ? practicantData.Age : ""}
-            </Typography>
+            {isEdit ? (
+              // Mostrar el formulario con los SoftInputs cuando isEdit sea true
+              <>
+                <form>
+                  <Typography variant="body2" color="textSecondary" align="center">
+                    <strong>Nombre Completo:</strong>
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-around",
+                        gap: "20px",
+                      }}
+                    >
+                      <>
+                        {" "}
+                        <SoftInput
+                          type="text"
+                          value={practicantData["First Name"]}
+                          onChange={(e) => handleInputChange("First Name", e.target.value)}
+                        />
+                        <SoftInput
+                          type="text"
+                          value={practicantData["Middle Name"]}
+                          onChange={(e) => handleInputChange("Middle Name", e.target.value)}
+                        />
+                      </>
+                      <>
+                        {" "}
+                        <SoftInput
+                          type="text"
+                          value={practicantData["Last Name"]}
+                          onChange={(e) => handleInputChange("Last Name", e.target.value)}
+                        />
+                        <SoftInput
+                          type="text"
+                          value={practicantData["Last Name (2nd)"]}
+                          onChange={(e) => handleInputChange("Last Name (2nd)", e.target.value)}
+                        />
+                      </>
+                    </div>
+                  </Typography>
+                  <Typography variant="body2" color="textSecondary" align="center" mt={1}>
+                    <strong>Cédula:</strong>
+                    <SoftInput
+                      type="text"
+                      value={practicantData.ID}
+                      onChange={(e) => handleInputChange("ID", e.target.value)}
+                    />
+                  </Typography>
+                  <Typography variant="body2" color="textSecondary" align="center" mt={1}>
+                    <strong>Notas:</strong>
+                    <SoftInput
+                      type="text"
+                      value={practicantData.Notes || ""}
+                      onChange={(e) => handleInputChange("Notes", e.target.value)}
+                    />
+                  </Typography>
+                  <Typography variant="body2" color="textSecondary" align="center" mt={1}>
+                    <strong>Edad:</strong>
+                    <SoftInput
+                      type="number"
+                      value={practicantData.Age || ""}
+                      onChange={(e) => handleInputChange("Age", e.target.value)}
+                    />
+                  </Typography>
+                </form>
+              </>
+            ) : (
+              <>
+                <Typography variant="body2" color="textSecondary" align="center">
+                  <strong>Nombre Completo:</strong> {practicantData["Full Name"]}
+                </Typography>
+                <Typography variant="body2" color="textSecondary" align="center" mt={1}>
+                  <strong>Cédula:</strong> {practicantData.ID}
+                </Typography>
+                <Typography variant="body2" color="textSecondary" align="center" mt={1}>
+                  <strong>Notas:</strong>{" "}
+                  {practicantData.Notes ? practicantData.Notes : "Sin notas"}
+                </Typography>
+                <Typography variant="body2" color="textSecondary" align="center" mt={1}>
+                  <strong>Edad:</strong> {practicantData.Age ? practicantData.Age : ""}
+                </Typography>
+              </>
+            )}
           </>
         );
       case "contact":
         return (
           <>
-            <Typography variant="body2" color="textSecondary" align="center">
-              <strong>Dirección:</strong> {practicantData.Address || "Dirección no disponible"}
-            </Typography>
-            <Typography variant="body2" color="textSecondary" align="center" mt={1}>
-              <strong>Teléfono:</strong> {practicantData["Phone Number"] || "No disponible"}
-            </Typography>
-            <Typography variant="body2" color="textSecondary" align="center" mt={1}>
-              <strong>Representante:</strong> {hasRepresentatives}
-            </Typography>
+            {isEdit ? (
+              <>
+                <form>
+                  <Typography variant="body2" color="textSecondary" align="center" mt={1}>
+                    <strong>Dirección:</strong>
+                    <SoftInput
+                      type="text"
+                      value={practicantData.Address}
+                      onChange={(e) => handleInputChange("Address", e.target.value)}
+                    />
+                  </Typography>
+                  <Typography variant="body2" color="textSecondary" align="center" mt={1}>
+                    <strong>Teléfono:</strong>
+                    <SoftInput
+                      type="text"
+                      value={practicantData["Phone Number"] || ""}
+                      onChange={(e) => handleInputChange("Phone Number", e.target.value)}
+                    />
+                  </Typography>
+                </form>
+              </>
+            ) : (
+              <>
+                <Typography variant="body2" color="textSecondary" align="center">
+                  <strong>Dirección:</strong> {practicantData.Address || "Dirección no disponible"}
+                </Typography>
+                <Typography variant="body2" color="textSecondary" align="center" mt={1}>
+                  <strong>Teléfono:</strong> {practicantData["Phone Number"] || "No disponible"}
+                </Typography>
+                <Typography variant="body2" color="textSecondary" align="center" mt={1}>
+                  <strong>Representante:</strong> {hasRepresentatives}
+                </Typography>
+                {representativesData ? (
+                  <>
+                    <Divider style={{ margin: "8px 0" }} />
+                    <Typography variant="body2" color="textSecondary" align="center">
+                      <strong>Nombre Completo:</strong> {representativesData["Full Name"]}
+                    </Typography>
+                    <Typography variant="body2" color="textSecondary" align="center" mt={1}>
+                      <strong>Telefono:</strong>{" "}
+                      {representativesData["Phone Number"] || "No disponible"}
+                    </Typography>
+                    <Typography variant="body2" color="textSecondary" align="center" mt={1}>
+                      <strong>Correo:</strong> {representativesData.Email}
+                    </Typography>
+                  </>
+                ) : (
+                  <></>
+                )}
+              </>
+            )}
           </>
         );
       case "user":
         return (
           <>
-            <Typography variant="body2" color="textSecondary" align="center">
-              <strong>Usuario:</strong> {practicantData.userName || "No disponible"}
-            </Typography>
-            <Typography variant="body2" color="textSecondary" align="center" mt={1}>
-              <strong>Grado:</strong>{" "}
-              <div
-                style={{
-                  display: "inline-block",
-                  padding: "4px 8px",
-                  borderRadius: "8px",
-                  backgroundColor: backgroundColor,
-                  color: textColor,
-                  fontWeight: "bold",
-                  fontSize: "12px",
-                  textAlign: "center",
-                  minWidth: "40px",
-                  lineHeight: "16px",
-                  border: backgroundColor === "#FFFFFF" ? "0.5px solid #000000" : "none",
-                }}
-              >
-                {practicantData.Step[0] &&
-                practicantData.Step[0] >= 1 &&
-                practicantData.Step[0] <= 21
-                  ? gradeNames[practicantData.Step[0] - 1]
-                  : "N/A"}
-              </div>
-            </Typography>
-
-            <Typography variant="body2" color="textSecondary" align="center" mt={1}>
-              <strong>Plan de Clase:</strong> {practicantData["Plan Class"] || "No asignado"}
-            </Typography>
+            {isEdit ? (
+              <>
+                <form>
+                  <Typography variant="body2" color="textSecondary" align="center" mt={1}>
+                    <strong>Usuario:</strong>
+                    <SoftInput
+                      type="text"
+                      value={practicantData.userName}
+                      onChange={(e) => handleInputChange("userName", e.target.value)}
+                    />
+                  </Typography>
+                  <Typography variant="body2" color="textSecondary" align="center" mt={1}>
+                    <strong>Contraseña:</strong>
+                    <SoftInput
+                      type="text"
+                      value={practicantData.password}
+                      onChange={(e) => handleInputChange("password", e.target.value)}
+                    />
+                  </Typography>
+                </form>
+              </>
+            ) : (
+              <>
+                <Typography variant="body2" color="textSecondary" align="center">
+                  <strong>Usuario:</strong> {practicantData.userName || "No disponible"}
+                </Typography>
+                <Typography variant="body2" color="textSecondary" align="center" mt={1}>
+                  <strong>Grado:</strong>{" "}
+                  <div
+                    style={{
+                      display: "inline-block",
+                      padding: "4px 8px",
+                      borderRadius: "8px",
+                      backgroundColor: backgroundColor,
+                      color: textColor,
+                      fontWeight: "bold",
+                      fontSize: "12px",
+                      textAlign: "center",
+                      minWidth: "40px",
+                      lineHeight: "16px",
+                      border: backgroundColor === "#FFFFFF" ? "0.5px solid #000000" : "none",
+                    }}
+                  >
+                    {practicantData.Step[0] &&
+                    practicantData.Step[0] >= 1 &&
+                    practicantData.Step[0] <= 21
+                      ? gradeNames[practicantData.Step[0] - 1]
+                      : "N/A"}
+                  </div>
+                </Typography>
+                <Typography variant="body2" color="textSecondary" align="center" mt={1}>
+                  <strong>Plan de Clase:</strong> {practicantData["Plan Class"] || "No asignado"}
+                </Typography>
+              </>
+            )}
           </>
         );
       default:
@@ -186,6 +363,7 @@ const DataFields = (selectedId) => {
         position: "relative",
       }}
     >
+      <Toaster />
       <SoftBox
         display="flex"
         flexDirection="column"
@@ -260,6 +438,27 @@ const DataFields = (selectedId) => {
 
       {/* Renderizado dinámico según la sección seleccionada */}
       <Box>{renderSection()}</Box>
+      <>
+        {isEdit ? (
+          <div style={{ display: "flex", justifyContent: "space-around", margin: "10px 0" }}>
+            <Button
+              style={{ color: "green" }}
+              onClick={() => editPracticant(selectedId.selectedId, editedData)}
+            >
+              Guardar <CheckIcon />
+            </Button>
+            <Button onClick={handleEdit}>
+              Cancelar <CloseIcon />
+            </Button>
+          </div>
+        ) : (
+          <>
+            <Button onClick={handleEdit}>
+              Editar <EditIcon />
+            </Button>
+          </>
+        )}
+      </>
     </Card>
   );
 };
